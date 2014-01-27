@@ -47,20 +47,23 @@ path.link {
 	background-color: #333;
 }
 
-.tooltip {
+#tooltip {
 	height: 100px;
 	width: 200px;
 	position: absolute;
 	text-align: center;
 	vertical-align: middle;
-	visibility : hidden;
+	display: none;
 	background-image: url(images/tooltip.png);
 	background-size: 100% 100%;
 }
 
-.tooltip:hover {
-	visibility : visible;
+#tooltip:hover {
+	display: block;
 }
+
+
+
 </style>
 </head>
 
@@ -129,17 +132,19 @@ path.link {
 					.on("mouseover", function(d){
 						console.log("enter");
 						console.log( d.y0+","+ d.x0); 
-						var tip = d3.select(".tooltip")
+						var tip = d3.select("#tooltip")
 							.style("left",(d.y0-20)+"px")
 							.style("top",(d.x0-14)+"px")
-							.style("visibility","visible");
+							.style("display","block");
 								})
 					.on("mousemove", function(){console.log("move")})
 					.on("mouseout", function(){
-						console.log("exit");
-						var tip = d3.select(".tooltip")		
-							.style("visibility","hidden");
-								});
+						document.getElementById('tooltip').onmouseout  = function (){
+						console.log("inner exit");
+						var tip = d3.select("#tooltip")
+							.style("display","none");}
+						}
+						);
 			  		
 					nodeEnter.append("circle")
 			  		.attr("r", 1e-6)
@@ -210,7 +215,36 @@ path.link {
 						d.x0 = d.x;
 						d.y0 = d.y;
 					  });
-				w}
+				}	
+					
+					
+d3.select("svg")
+        .call(d3.behavior.zoom()
+              .scaleExtent([0.5, 5])
+              .on("zoom", zoom));
+function zoom() {
+    var scale = d3.event.scale,
+        translation = d3.event.translate,
+        tbound = -h * scale,
+        bbound = h * scale,
+        lbound = (-w + m[1]) * scale,
+        rbound = (w - m[3]) * scale;
+    // limit translation to thresholds
+    translation = [
+        Math.max(Math.min(translation[0], rbound), lbound),
+        Math.max(Math.min(translation[1], bbound), tbound)
+    ];
+    d3.select(".drawarea")
+        .attr("transform", "translate(" + translation + ")" +
+              " scale(" + scale + ")");
+}
+
+
+
+
+
+
+
 
 // Toggle children on click.
 function click(d) {
@@ -226,6 +260,6 @@ function click(d) {
 
 </script>
 </div>
-<div class="tooltip"></div>
+<div id="tooltip"></div>
 </body>
 </html>
